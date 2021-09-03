@@ -1,7 +1,10 @@
+
 <?php
 if(!defined('SECURITY')){
 	die("ban ko co quyen truy cap trang nay product");
 }
+$alert = '';
+
 if(isset($_POST['sbm'])){
     $prd_name = $_POST['prd_name'];
     $prd_price = $_POST['prd_price'];
@@ -9,23 +12,42 @@ if(isset($_POST['sbm'])){
     $prd_accessories = $_POST['prd_accessories'];
     $prd_promotion = $_POST['prd_promotion'];
     $prd_new = $_POST['prd_new'];
-    $prd_image = $_FILES['prd_image']['name'];
-    $tmp_name = $_FILES['prd_image']['tmp_name'];
-    $cat_id = $_POST['cat_id'];
-    $prd_status = $_POST['prd_status'];
-    if(isset($_POST['prd_featured'])){
-        $prd_featured = 1;
-    }else{
-        $prd_featured = 0;
+
+    $status = 1;
+    $fileType = $_FILES['prd_image']['type'];
+    $fileSize = $_FILES['prd_image']['size'];
+    $type = array("image/jpg", "image/png");
+    if( !in_array($fileType, $type) ) {
+        $alert .= '<div class="alert alert-danger text-center"><strong>Error: type of image</strong></div>';
+        $status = 0;
     }
-    
-    $prd_details = $_POST['prd_details'];
-    $sql = "INSERT INTO product (prd_name, prd_price, prd_warranty, prd_accessories, prd_promotion, prd_new, prd_image, cat_id, prd_status, prd_featured, prd_details) VALUES ('$prd_name', '$prd_price', '$prd_warranty', '$prd_accessories', '$prd_promotion', '$prd_new', '$prd_image', $cat_id, $prd_status,$prd_featured, '$prd_details')";
-    $query = mysqli_query($conn, $sql);
-    move_uploaded_file($tmp_name, 'img/products/'.$prd_image);
-    header("location: index.php?page_layout=product");
+    $maxSize = 1024*500 ;
+    if( $fileSize > $maxSize){
+        $alert .= '<div class="alert alert-danger text-center"><strong>Error: size of image '. $fileType .'</strong></div>';
+        $status = 0;
+    }
+    if( $status == 1){
+        $prd_image = $_FILES['prd_image']['name'];
+        $tmp_name = $_FILES['prd_image']['tmp_name'];
+        $cat_id = $_POST['cat_id'];
+        $prd_status = $_POST['prd_status'];
+        if(isset($_POST['prd_featured'])){
+            $prd_featured = 1;
+        }else{
+            $prd_featured = 0;
+        }
+
+        $prd_details = $_POST['prd_details'];
+        $sql = "INSERT INTO product (prd_name, prd_price, prd_warranty, prd_accessories, prd_promotion, prd_new, prd_image, cat_id, prd_status, prd_featured, prd_details) VALUES ('$prd_name', '$prd_price', '$prd_warranty', '$prd_accessories', '$prd_promotion', '$prd_new', '$prd_image', $cat_id, $prd_status,$prd_featured, '$prd_details')";
+        $query = mysqli_query($conn, $sql);
+        move_uploaded_file($tmp_name, 'img/products/'.$prd_image);
+        header("location: index.php?page_layout=product");
+    }
+
 }
 ?>
+<?php echo $alert; ?>
+
 	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
 		<div class="row">
 			<ol class="breadcrumb">
@@ -48,28 +70,28 @@ if(isset($_POST['sbm'])){
                               <form role="form" method="post" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label>Tên sản phẩm</label>
-                                    <input required name="prd_name" class="form-control" placeholder="">
+                                    <input required name="prd_name" class="form-control" placeholder="" value="<?= isset($_POST['prd_name'])?$_POST['prd_name']:'' ?>">
                                 </div>
                                                                 
                                 <div class="form-group">
                                     <label>Giá sản phẩm</label>
-                                    <input required name="prd_price" type="number" min="0" class="form-control">
+                                    <input required name="prd_price" type="number" min="0" class="form-control" value="<?= isset($_POST['prd_price'])?$_POST['prd_price']:'' ?>">
                                 </div>
                                 <div class="form-group">
                                     <label>Bảo hành</label>
-                                    <input required name="prd_warranty" type="text" class="form-control">
+                                    <input required name="prd_warranty" type="text" class="form-control" value="<?= isset($_POST['prd_warranty'])?$_POST['prd_warranty']:'' ?>">
                                 </div>    
                                 <div class="form-group">
                                     <label>Phụ kiện</label>
-                                    <input required name="prd_accessories" type="text" class="form-control">
+                                    <input required name="prd_accessories" type="text" class="form-control" value="<?= isset($_POST['prd_accessories'])?$_POST['prd_accessories']:'' ?>">
                                 </div>                  
                                 <div class="form-group">
                                     <label>Khuyến mãi</label>
-                                    <input required name="prd_promotion" type="text" class="form-control">
+                                    <input required name="prd_promotion" type="text" class="form-control" value="<?= isset($_POST['prd_promotion'])?$_POST['prd_promotion']:'' ?>">
                                 </div>  
                                 <div class="form-group">
                                     <label>Tình trạng</label>
-                                    <input required name="prd_new" type="text" class="form-control">
+                                    <input required name="prd_new" type="text" class="form-control" value="<?= isset($_POST['prd_new'])?$_POST['prd_new']:'' ?>">
                                 </div>  
                                 
                                 </div>
@@ -77,7 +99,7 @@ if(isset($_POST['sbm'])){
                                 <div class="form-group">
                                     <label>Ảnh sản phẩm</label>
                                     
-                                    <input required name="prd_image" type="file">
+                                    <input required name="prd_image" type="file" >
                                     <br>
                                     <div>
                                         <img src="img/download.jpeg">
@@ -88,9 +110,6 @@ if(isset($_POST['sbm'])){
                                     <select name="cat_id" class="form-control">
                                     <?php $sql="SELECT * FROM category ORDER BY cat_id ASC ";$query=mysqli_query($conn,$sql);$i=1; while($row=mysqli_fetch_array($query)){?>
                                          <option value=<?= $i++ ?>><?php echo $row['cat_name']; ?></option>
-                                        <!-- <option value=2>Samsung</option>
-                                        <option value=3>Nokia</option>
-                                        <option value=4>LG</option>  -->
                                     <?php } ?>    
                                     </select>
                                 </div>
@@ -113,10 +132,10 @@ if(isset($_POST['sbm'])){
                                 </div>
                                 <div class="form-group">
                                         <label>Mô tả sản phẩm</label>
-                                        <textarea required name="prd_details" class="form-control" rows="3"></textarea>
+                                        <textarea required name="prd_details" class="form-control" rows="3" value=""><?= isset($_POST['prd_details'])?$_POST['prd_details']:'' ?></textarea>
                                         <script>CKEDITOR.replace('prd_details');</script>
                                 </div>
-                                <button name="sbm" type="submit" class="btn btn-success">Thêm mới</button>
+                                <button name="sbm" type="submit" class="btn btn-success" onclick="return error()">Thêm mới</button>
                                 <button type="reset" class="btn btn-default">Làm mới</button>
                                 </div>
                               </form>
@@ -125,5 +144,4 @@ if(isset($_POST['sbm'])){
                 </div><!-- /.col-->
             </div><!-- /.row -->
 		
-	</div>	<!--/.main-->	
-
+	</div>	<!--/.main-->
