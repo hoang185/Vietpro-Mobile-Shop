@@ -19,7 +19,19 @@
 
 <body>
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start(); }
+if(isset($_SESSION['locked']))
+{
+    $differ = time() - $_SESSION['locked'];
+    if( $differ > 6 ) {
+        unset($_SESSION['locked']);
+        unset($_SESSION['login_attempts']);
+    }
+
+}
 if(isset($_POST["sbm"])){
+
 	$mail=$_POST["mail"];
 	$pass=$_POST["pass"];
 	$sql="SELECT * FROM user WHERE user_mail='$mail' AND user_pass='$pass'";
@@ -33,6 +45,9 @@ if(isset($_POST["sbm"])){
 		$_SESSION["pass"]=$pass;
 		header("location:index.php");
     }else{
+//        if(isset($_SESSION["login_attempts"])){
+            $_SESSION["login_attempts"] += 1;
+//        }
 	    $errorrs='<div class="alert alert-danger">Tài khoản không hợp lệ !</div>';
 	}
 }
@@ -48,7 +63,7 @@ if(isset($_POST["sbm"])){
 					<form role="form" method="post">
 						<fieldset>
 							<div class="form-group">
-								<input class="form-control" placeholder="E-mail" name="mail" type="email" autofocus value="">
+								<input class="form-control" placeholder="E-mail" name="mail" type="email" autofocus value="<?= isset($_POST['mail'])?$_POST['mail']:'';  ?>">
 							</div>
 							<div class="form-group">
 								<input class="form-control" placeholder="Mật khẩu" name="pass" type="password" value="">
@@ -58,13 +73,50 @@ if(isset($_POST["sbm"])){
 									<input name="remember" type="checkbox" value="Remember Me">Nhớ tài khoản
 								</label>
 							</div>
+                            <?php
+                                if(isset($_SESSION['login_attempts']) && $_SESSION['login_attempts'] > 2) {
+                                    $_SESSION['locked'] = time();
+                                    $count =time() - $_SESSION['locked'];
+                                    echo '<p id="demo">Waiting for 6 seconds</p>';
+//                                    echo header("refresh: 6");
+                                }
+                                else {
+                            ?>
 							<button type="submit" class="btn btn-primary" name="sbm">Đăng nhập</button>
-						</fieldset>
+						    <?php }  ?>
+                        </fieldset>
 					</form>
 				</div>
 			</div>
 		</div>
-	</div>	
+	</div>
+<script>
+    setTimeout(myTimeout1, 1000)
+    setTimeout(myTimeout2, 2000)
+    setTimeout(myTimeout3, 3000)
+    setTimeout(myTimeout4, 4000)
+    setTimeout(myTimeout5, 5000)
+    setTimeout(myTimeout6, 6000)
+
+    function myTimeout1() {
+        document.getElementById("demo").innerHTML = "1 seconds";
+    }
+    function myTimeout2() {
+        document.getElementById("demo").innerHTML = "2 seconds";
+    }
+    function myTimeout3() {
+        document.getElementById("demo").innerHTML = "3 seconds";
+    }
+    function myTimeout4() {
+        document.getElementById("demo").innerHTML = "4 seconds";
+    }
+    function myTimeout5() {
+        document.getElementById("demo").innerHTML = "5 seconds";
+    }
+    function myTimeout6() {
+        document.getElementById("demo").innerHTML = "6 seconds";
+    }
+</script>
 </body>
 
 </html>
