@@ -22,8 +22,8 @@ if(isset($_POST['sbm'])){
         $status = 0;
     }
     $maxSize = 1024*500 ;
-    if( $fileSize > $maxSize){
-        $alert .= '<div class="alert alert-danger text-center"><strong>Error: size of image '. $fileType .'</strong></div>';
+    if( $fileSize > $maxSize ){
+        $alert .= '<div class="alert alert-danger text-center"><strong>Error: size of image </strong></div>';
         $status = 0;
     }
     if( $status == 1){
